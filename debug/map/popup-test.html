@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Leaflet debug page</title>
+
+  <link rel="stylesheet" href="../../dist/leaflet.css" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="../css/screen.css" />
+  
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+
+  <script type="text/javascript" src="../../build/deps.js"></script>
+  <script src="../leaflet-include.js"></script>
+</head>
+<body>
+
+  <div id="map"></div>
+
+  <script type="text/javascript">
+
+    var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      osmAttrib = '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      osm = L.tileLayer(osmUrl, {maxZoom: 18, attribution: osmAttrib});
+
+
+    var onMarkerClick = function(event) {
+        console.log("onMarkerClick");
+        var $content = $(document.createElement("div"))
+            .text("Popup content");
+        event.layer.bindPopup($content[0], {closeButton: false}).openPopup();
+    };
+
+    var onPopupClose = function(event) {
+
+        if (event.popup._source) {
+            console.log("onPopupClose");
+            event.popup._source.unbindPopup();
+        }
+    };
+
+    var map = new L.Map("map", {})
+        .on(
+            "popupclose",
+            onPopupClose.bind(this)
+        );
+
+    map.addLayer(osm);
+
+    var plotll = new L.LatLng(45.3733428, -84.9553297, true);
+    var marker = new L.Marker(plotll);
+
+    var fg = L.featureGroup([ marker ]);
+    fg.on(
+        'click',
+        onMarkerClick.bind(this)
+    );
+
+    fg.addLayer(marker);
+    map.addLayer(fg);
+    map.fitBounds(fg.getBounds());
+  </script>
+</body>
+</html>
